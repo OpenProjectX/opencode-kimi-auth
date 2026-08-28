@@ -1,4 +1,4 @@
-# opencode-kimi-auth
+# @openprojectx/opencode-kimi-auth
 
 ## 0.2.0
 

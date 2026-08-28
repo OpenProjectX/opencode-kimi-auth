@@ -94,8 +94,8 @@ New `packages/opencode/src/plugin/kimi/kimi.ts` + one line in
 `internalPlugins()`. Best UX (works out of the box), follows the Copilot/Codex
 precedent exactly. Requires upstream review/merge. **~250 LoC.**
 
-**Option 2 — external npm plugin (`opencode-kimi-auth`).**
-Same code shipped as an npm package; users add `"plugin": ["opencode-kimi-auth"]`
+**Option 2 — external npm plugin (`@openprojectx/opencode-kimi-auth`).**
+Same code shipped as an npm package; users add `"plugin": ["@openprojectx/opencode-kimi-auth"]`
 to `opencode.jsonc`. No upstream dependency — can ship today; precedents:
 `opencode-gitlab-auth`, `opencode-poe-auth` (note: these got absorbed into
 `internalPlugins()` later, so external-first → upstream is a proven path).

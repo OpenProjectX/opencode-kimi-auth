@@ -1,4 +1,4 @@
-# opencode-kimi-auth
+# @openprojectx/opencode-kimi-auth
 
 OAuth login for [Kimi Code](https://www.kimi.com/code) (subscription) in
 [opencode](https://opencode.ai) — use **Kimi K3** / **K2.7 Code** via
@@ -24,7 +24,7 @@ opencode auth login → Kimi For Coding → Sign in with Kimi Code (subscription
 ```jsonc
 // opencode.jsonc (project) or ~/.config/opencode/opencode.jsonc (global)
 {
-  "plugin": ["opencode-kimi-auth"]
+  "plugin": ["@openprojectx/opencode-kimi-auth"]
 }
 ```
 
@@ -48,7 +48,7 @@ Select interactively with `/models` in the TUI, or set a default:
 
 ```jsonc
 {
-  "plugin": ["opencode-kimi-auth"],
+  "plugin": ["@openprojectx/opencode-kimi-auth"],
   "model": "kimi-for-coding/k3"
 }
 ```

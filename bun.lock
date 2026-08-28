@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "opencode-kimi-auth",
+      "name": "@openprojectx/opencode-kimi-auth",
       "devDependencies": {
         "@changesets/cli": "^2.29.0",
         "@opencode-ai/plugin": "^1.18.23",

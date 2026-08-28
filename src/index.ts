@@ -1,5 +1,5 @@
 /**
- * opencode-kimi-auth
+ * @openprojectx/opencode-kimi-auth
  *
  * Adds "Sign in with Kimi Code (subscription)" OAuth login to opencode's
  * built-in `kimi-for-coding` provider (Kimi K3 / K2.7 Code on

@@ -1,9 +1,12 @@
 {
-  "name": "opencode-kimi-auth",
+  "name": "@openprojectx/opencode-kimi-auth",
   "version": "0.2.0",
   "description": "Kimi Code (subscription) OAuth login for opencode — RFC 8628 device flow for the kimi-for-coding provider (Kimi K3 / K2.7 Code)",
   "license": "MIT",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
