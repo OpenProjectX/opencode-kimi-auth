@@ -72,6 +72,14 @@ export const KimiAuthPlugin: Plugin = async (input) => {
             }
           },
         },
+        // Keep the API-key path visible in `opencode auth login`. Without this,
+        // the single OAuth method would auto-select and shadow the generic
+        // key prompt (cli/cmd/providers.ts skips it once a plugin handles the
+        // provider). No `authorize`: the CLI stores the key as-is.
+        {
+          type: "api",
+          label: "Manually enter API Key",
+        },
       ],
       async loader(getAuth) {
         const auth = await getAuth()

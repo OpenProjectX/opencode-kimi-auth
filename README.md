@@ -62,8 +62,10 @@ Select interactively with `/models` in the TUI, or set a default:
 | Refresh | Access tokens live **~15 minutes**. The plugin refreshes proactively when <5 min remain, single-flights concurrent refreshes, retries 429/5xx with backoff, and persists rotated tokens back to opencode's auth store. |
 | Expired refresh token | `invalid_grant`/401/403 → error tells you to run `opencode auth login` again. |
 
-API keys still work — the plugin only adds the OAuth method; the built-in
-"API key" method is untouched.
+API keys still work — the plugin registers both login methods, so
+`opencode auth login` → Kimi For Coding shows a menu:
+"Sign in with Kimi Code (subscription)" or "Manually enter API Key".
+The `KIMI_API_KEY` env var also keeps working independently of both.
 
 ## Configuration
 
