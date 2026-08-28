@@ -1,0 +1,97 @@
+# Kimi / Moonshot API connectivity tests
+# Run with VS Code "REST Client" extension or JetBrains HTTP Client.
+# These mirror the exact calls used to diagnose the opencode "Unauthorized" error.
+
+# Secrets (moonshotKey, kimiKey, moonshotGlobalKey, piToken) live in
+# http-client.private.env.json at the project root (git-ignored). JetBrains
+# HTTP Client resolves {{vars}} from there. For VS Code REST Client, define
+# them in settings.json under "rest-client.environmentVariables" instead.
+#
+# Keys are generated at https://platform.moonshot.cn (valid on api.moonshot.cn
+# ONLY - rejected by api.kimi.com/coding and api.moonshot.ai).
+# TODO: kimiKey -> generate a real Kimi Code key at https://www.kimi.com/code
+# TODO: moonshotGlobalKey -> only if you have a https://platform.moonshot.ai (global) account
+
+###
+
+# 1. Kimi For Coding endpoint - what opencode calls for kimi-for-coding/k3
+#    Expected with current key: 401 {"type":"invalid_authentication_error"}
+#    Expected with a real Kimi Code key: 200 with message content
+POST https://api.kimi.com/coding/v1/messages
+Authorization: Bearer {{kimiKey}}
+x-api-key: {{kimiKey}}
+anthropic-version: 2023-06-01
+Content-Type: application/json
+
+{
+  "model": "k3",
+  "max_tokens": 20,
+  "messages": [{ "role": "user", "content": "say ok" }]
+}
+
+###
+
+# 2. Moonshot CN platform - list models (cheapest key-validity check)
+#    Expected with current key: 200 + model list (key IS valid here)
+GET https://api.moonshot.cn/v1/models
+Authorization: Bearer {{moonshotKey}}
+
+###
+
+# 3. Moonshot CN platform - call kimi-k3 (Anthropic-compatible API)
+#    Expected with current key: 429 exceeded_current_quota_error
+#    ("account suspended due to insufficient balance") -> key valid, no credit.
+#    After recharging: 200.
+POST https://api.moonshot.cn/anthropic/v1/messages
+x-api-key: {{moonshotKey}}
+anthropic-version: 2023-06-01
+Content-Type: application/json
+
+{
+  "model": "kimi-k3",
+  "max_tokens": 20,
+  "messages": [{ "role": "user", "content": "say ok" }]
+}
+
+###
+
+# 4. Moonshot CN platform - chat completions (OpenAI-compatible API)
+#    Same expectation as #3: 429 until balance is topped up.
+POST https://api.moonshot.cn/v1/chat/completions
+Authorization: Bearer {{moonshotKey}}
+Content-Type: application/json
+
+{
+  "model": "kimi-k3",
+  "max_tokens": 20,
+  "messages": [{ "role": "user", "content": "say ok" }]
+}
+
+###
+
+# 5. Moonshot GLOBAL platform - list models
+#    Expected with current key: 401 (CN platform key is not valid globally)
+GET https://api.moonshot.ai/v1/models
+Authorization: Bearer {{moonshotGlobalKey}}
+
+###
+
+# 6. EXACTLY what pi (this agent) uses - OAuth subscription token
+#    Endpoint : https://api.kimi.com/coding/v1/messages  (Anthropic Messages API)
+#    Auth     : Authorization: Bearer <OAuth access token>  (NOT an sk- API key)
+#    Token exp: 2026-08-27 23:28:16 UTC -> VALID at time of writing
+#    NOTE: token lives ~15 min; pi auto-refreshes it via the refresh token in
+#    ~/.pi/agent/auth.json. If you get 401, re-copy a fresh token from that file
+#    into http-client.private.env.json.
+#    Expected while valid: 200. This is the call that proves why pi works.
+
+POST https://api.kimi.com/coding/v1/messages
+Authorization: Bearer {{piToken}}
+anthropic-version: 2023-06-01
+Content-Type: application/json
+
+{
+  "model": "k3",
+  "max_tokens": 20,
+  "messages": [{ "role": "user", "content": "say ok" }]
+}
