@@ -1,7 +1,7 @@
 {
   "name": "@openprojectx/opencode-kimi-auth",
   "version": "0.3.0",
-  "description": "Kimi Code (subscription) OAuth login for opencode — RFC 8628 device flow for the kimi-for-coding provider (Kimi K3 / K2.7 Code)",
+  "description": "Kimi Code (subscription) OAuth login for opencode — RFC 8628 device flow for the kimi-code-plan providers (Kimi K3 / K2.7 Code)",
   "license": "MIT",
   "type": "module",
   "publishConfig": {
@@ -19,7 +19,7 @@
     "opencode",
     "opencode-plugin",
     "kimi",
-    "kimi-for-coding",
+    "kimi-code-plan",
     "moonshot",
     "oauth"
   ],
