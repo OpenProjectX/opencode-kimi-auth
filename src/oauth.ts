@@ -268,7 +268,49 @@ export async function refreshToken(
   throw lastError ?? new Error("Kimi Code token refresh failed")
 }
 
-/** True when the access token is expired or inside the proactive-refresh window. */
+/**
+ * True when the access token is expired or inside the proactive-refresh window.
+ *
+ * A missing or non-numeric `expires` (hand-edited auth.json, or a record written
+ * by an older release) is treated as "refresh now" rather than "never refresh":
+ * the arithmetic would otherwise yield NaN, and `NaN <= now` is false, leaving
+ * the loader pinned to a stale token forever.
+ */
 export function needsRefresh(expires: number, now = Date.now()): boolean {
+  if (!Number.isFinite(expires)) return true
   return expires - PROACTIVE_REFRESH_MS <= now
+}
+
+/**
+ * The API rejected a request that carried a freshly refreshed access token.
+ *
+ * OAuth identity and Kimi Code entitlement are separate systems: a lapsed or
+ * cancelled membership still refreshes tokens happily, while
+ * `api.kimi.com/coding/v1` answers 401/403. Without this distinction the
+ * failure surfaces as a bare `AI_APICallError: Unauthorized`, which reads like
+ * a broken login and sends people back through a sign-in that cannot help.
+ */
+export class SubscriptionUnauthorizedError extends Error {}
+
+/** Upper bound on server text echoed into an error message. */
+const ERROR_BODY_LIMIT = 500
+
+/**
+ * Build the message for a 401/403 that survived a token refresh. Reads a clone
+ * so the caller's response body stays intact.
+ */
+export async function describeApiAuthFailure(response: Response): Promise<string> {
+  const raw = await response
+    .clone()
+    .text()
+    .catch(() => "")
+  const body = raw.trim().slice(0, ERROR_BODY_LIMIT)
+  const detail = body ? ` Server said: ${body}` : ""
+  return (
+    `Kimi Code rejected the request with status ${response.status} even after a successful token refresh, ` +
+    `so the OAuth credentials are valid and the Kimi Code entitlement is not. ` +
+    `This usually means the subscription has expired, been cancelled, or does not cover this model.${detail} ` +
+    `Check the membership at https://www.kimi.com/code, or switch to a platform provider ` +
+    `(moonshotai / moonshotai-cn) with a platform API key.`
+  )
 }
