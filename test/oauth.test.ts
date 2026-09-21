@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import {
   CLIENT_ID,
   RefreshUnauthorizedError,
+  describeApiAuthFailure,
   getOauthHost,
   needsRefresh,
   pollForToken,
@@ -230,5 +231,40 @@ describe("needsRefresh", () => {
     expect(needsRefresh(now - 1, now)).toBe(true) // expired
     expect(needsRefresh(now + 60_000, now)).toBe(true) // <5 min remaining
     expect(needsRefresh(now + 10 * 60_000, now)).toBe(false) // 10 min remaining
+  })
+})
+
+describe("needsRefresh", () => {
+  test("refreshes rather than stalling when expires is unusable", () => {
+    expect(needsRefresh(undefined as unknown as number)).toBe(true)
+    expect(needsRefresh(Number.NaN)).toBe(true)
+    expect(needsRefresh("soon" as unknown as number)).toBe(true)
+  })
+})
+
+describe("describeApiAuthFailure", () => {
+  test("names the entitlement as the likely cause and echoes the server text", async () => {
+    const message = await describeApiAuthFailure(
+      new Response(JSON.stringify({ error: "subscription expired" }), { status: 403 }),
+    )
+
+    expect(message).toContain("status 403")
+    expect(message).toContain("entitlement is not")
+    expect(message).toContain("subscription expired")
+    expect(message).toContain("https://www.kimi.com/code")
+  })
+
+  test("leaves the caller's response body readable", async () => {
+    const response = new Response("denied", { status: 401 })
+    await describeApiAuthFailure(response)
+
+    expect(response.bodyUsed).toBe(false)
+    expect(await response.text()).toBe("denied")
+  })
+
+  test("tolerates an unreadable body", async () => {
+    const message = await describeApiAuthFailure(new Response(null, { status: 401 }))
+    expect(message).toContain("status 401")
+    expect(message).not.toContain("Server said")
   })
 })
